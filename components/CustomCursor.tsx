@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Volume2, VolumeX } from "lucide-react";
+import { Rocket, Volume2, VolumeX } from "lucide-react";
 
 export default function CustomCursor() {
   const [enabled, setEnabled] = useState(true);
@@ -35,10 +35,10 @@ export default function CustomCursor() {
       current.current.y += dy * 0.18;
 
       if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate3d(${current.current.x - 4}px, ${current.current.y - 4}px, 0)`;
+        cursorRef.current.style.transform = `translate3d(${current.current.x - 10}px, ${current.current.y - 10}px, 0) rotate(${Math.max(-22, Math.min(22, dx * 0.45))}deg)`;
       }
       if (ringRef.current) {
-        ringRef.current.style.transform = `translate3d(${current.current.x - 18}px, ${current.current.y - 18}px, 0) scale(${hoveringRef.current ? 1.45 : 1})`;
+        ringRef.current.style.transform = `translate3d(${current.current.x - 18}px, ${current.current.y - 18}px, 0) scale(${hoveringRef.current ? 1.5 : 1})`;
       }
       rafRef.current = requestAnimationFrame(moveCursor);
     };
@@ -54,29 +54,38 @@ export default function CustomCursor() {
       setReady(true);
     };
 
-    const playTick = (distance: number) => {
-      if (!enabled || !soundUnlocked.current || !audioRef.current || distance < 22) return;
+    const playRocketWhoosh = (distance: number) => {
+      if (!enabled || !soundUnlocked.current || !audioRef.current || distance < 20) return;
       const now = performance.now();
-      if (now - lastSoundAt.current < 95) return;
+      if (now - lastSoundAt.current < 115) return;
       lastSoundAt.current = now;
 
       const ctx = audioRef.current;
       if (ctx.state !== "running") return;
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const filter = ctx.createBiquadFilter();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(560 + Math.min(distance, 90) * 2.5, ctx.currentTime);
+      const startFreq = 180 + Math.min(distance, 110) * 2.2;
+      const endFreq = startFreq * 1.8;
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.09);
+
       filter.type = "lowpass";
-      filter.frequency.value = 1800;
+      filter.frequency.setValueAtTime(900, ctx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(2400, ctx.currentTime + 0.09);
+
       gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.028, ctx.currentTime + 0.008);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.055);
+      gain.gain.exponentialRampToValueAtTime(0.018, ctx.currentTime + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.09);
+
       osc.connect(filter);
       filter.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.065);
+      osc.stop(ctx.currentTime + 0.1);
     };
 
     const onPointerMove = (event: PointerEvent) => {
@@ -84,7 +93,7 @@ export default function CustomCursor() {
       target.current.y = event.clientY;
       const dx = event.clientX - lastPoint.current.x;
       const dy = event.clientY - lastPoint.current.y;
-      playTick(Math.hypot(dx, dy));
+      playRocketWhoosh(Math.hypot(dx, dy));
       lastPoint.current.x = event.clientX;
       lastPoint.current.y = event.clientY;
       setVisible(true);
@@ -126,7 +135,7 @@ export default function CustomCursor() {
       <div
         ref={ringRef}
         aria-hidden="true"
-        className={`pointer-events-none fixed left-0 top-0 z-[100] h-9 w-9 rounded-full border border-white/30 transition-opacity duration-200 ${
+        className={`pointer-events-none fixed left-0 top-0 z-[100] flex h-9 w-9 items-center justify-center rounded-full border border-white/30 transition-opacity duration-200 ${
           visible && enabled ? "opacity-100" : "opacity-0"
         }`}
         style={{ transitionProperty: "transform, opacity" }}
@@ -134,15 +143,18 @@ export default function CustomCursor() {
       <div
         ref={cursorRef}
         aria-hidden="true"
-        className={`pointer-events-none fixed left-0 top-0 z-[101] h-2 w-2 rounded-full bg-[var(--accent-cyan)] shadow-[0_0_18px_rgba(125,211,252,0.65)] transition-opacity duration-200 ${
+        className={`pointer-events-none fixed left-0 top-0 z-[101] flex h-5 w-5 items-center justify-center text-[var(--accent-cyan)] drop-shadow-[0_0_9px_rgba(125,211,252,0.75)] transition-opacity duration-200 ${
           visible && enabled ? "opacity-100" : "opacity-0"
         }`}
-      />
+      >
+        <Rocket size={18} strokeWidth={1.7} />
+        <span className="pointer-events-none absolute -bottom-1 left-1/2 h-2 w-px -translate-x-1/2 bg-[var(--accent-amber)] opacity-80 blur-[1px]" />
+      </div>
       <button
         type="button"
         onClick={() => setEnabled((value) => !value)}
-        aria-label={enabled ? "Disable cursor and sound effects" : "Enable cursor and sound effects"}
-        title={enabled ? "Cursor and sound on" : "Cursor and sound off"}
+        aria-label={enabled ? "Disable rocket cursor and sound effects" : "Enable rocket cursor and sound effects"}
+        title={enabled ? "Rocket cursor and sound on" : "Rocket cursor and sound off"}
         className="focus-ring fixed bottom-5 right-5 z-[90] flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-hair)] bg-[var(--bg-panel)]/85 text-[var(--text-muted)] shadow-lg backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:text-[var(--text-primary)]"
       >
         {enabled && ready ? <Volume2 size={16} /> : <VolumeX size={16} />}
