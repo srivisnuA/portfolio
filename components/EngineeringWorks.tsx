@@ -7,10 +7,10 @@ const projects = [
   {
     title: "Refueling Safety & Fraud Detection",
     description:
-      "A real-time vision system for safer vehicle refueling, combining safety detection, fuel classification, and anomaly checks in one workflow.",
+      "A real-time vision system for safer vehicle refueling, combining safety detection, fuel classification, and anomaly checks.",
     detail:
-      "YOLOv8 tracks the nozzle, a CNN classifies fuel grades, and OCR validates meter readings; Flask exposes live camera feeds, safety status, and anomaly alerts.",
-    stack: ["Python", "YOLOv8", "CNN", "Flask", "OpenCV", "OCR"],
+      "YOLOv8, CNN, OCR, Flask, and OpenCV work together across camera feeds, fuel recognition, meter validation, and anomaly alerts.",
+    stack: ["Python", "YOLOv8", "CNN", "Flask", "OpenCV"],
     href: "https://github.com/srivisnuA/Vision-Based-Safety-Lapse-Detection-During-Vehicle-Refueling",
     icon: Fuel,
     accent: "var(--accent-cyan)",
@@ -18,9 +18,9 @@ const projects = [
   {
     title: "Historical Stock Analysis & Prediction",
     description:
-      "Turns market history and scraped fundamentals into an interpretable financial analysis and forecasting workflow.",
+      "A financial analysis workflow built from market history, scraped fundamentals, transformation, visualization, and prediction.",
     detail:
-      "yfinance provides historical prices while BeautifulSoup collects revenue data; Pandas handles transformation, Plotly and Matplotlib expose trends, and Random Forest estimates future prices.",
+      "Pandas, Plotly, Matplotlib, and Random Forest turn historical prices and revenue data into interpretable trends and forecasts.",
     stack: ["Python", "Pandas", "Scikit-learn", "Plotly", "Matplotlib"],
     href: "https://github.com/srivisnuA/Historical-stock-price-prediction",
     icon: TrendingUp,
@@ -29,9 +29,9 @@ const projects = [
   {
     title: "Customer Behavior Analysis & Segmentation",
     description:
-      "Transforms customer and sales data into actionable segments, dashboards, and business-facing visual stories.",
+      "Customer and sales data transformed into behavioral segments, dashboards, and business-facing visual stories.",
     detail:
-      "Cleaned and explored datasets with Pandas and NumPy, applied clustering to behavioral features, and built interactive Excel and Tableau views for segment-level analysis.",
+      "Pandas and NumPy support cleaning and exploration, while clustering, Excel, and Tableau surface segment-level patterns.",
     stack: ["Pandas", "NumPy", "Scikit-learn", "Excel", "Tableau"],
     href: "https://github.com/srivisnuA/customer-segmentation-analysis",
     icon: Users,
@@ -40,9 +40,9 @@ const projects = [
   {
     title: "FaceFare — Contactless Transit Payments",
     description:
-      "A facial-recognition payment concept connecting passenger identification, fare calculation, wallet flows, and transaction processing.",
+      "A facial-recognition payment concept connecting passenger identification, fare calculation, wallet flows, and transactions.",
     detail:
-      "Built with OpenCV, MTCNN, and FaceNet; structured passenger, trip, wallet, and transaction workflows around a privacy-preserving identity architecture that led to an Indian patent application.",
+      "OpenCV, MTCNN, and FaceNet power the recognition workflow behind a privacy-focused transit payment concept and patent application.",
     stack: ["Python", "OpenCV", "MTCNN", "FaceNet"],
     href: "https://github.com/srivisnuA/FaceFare",
     icon: ScanFace,
@@ -53,7 +53,7 @@ const projects = [
     description:
       "A desktop workflow for improving low-light lunar imagery with controlled enhancement and annotation tools.",
     detail:
-      "PyQt5 provides live preview controls for brightness, contrast, and gamma correction; OpenCV and Pillow handle the image-processing pipeline.",
+      "PyQt5, OpenCV, and Pillow provide live brightness, contrast, and gamma controls for an image-processing workflow.",
     stack: ["Python", "OpenCV", "PyQt5", "Pillow"],
     href: "https://github.com/srivisnuA/Low-light-enhancement-of-ISRO-S-OHRC-image",
     icon: Telescope,
@@ -69,6 +69,11 @@ export default function EngineeringWorks() {
           <Reveal>
             <div className="flex items-end justify-between gap-6">
               <div>
+                <div className="mb-3 flex items-center gap-3">
+                  <span className="font-mono text-[10px] tracking-[0.22em] text-[var(--accent-cyan)]">02</span>
+                  <span className="h-px w-10 bg-[var(--border-hair-strong)]" />
+                  <span className="font-mono text-[10px] tracking-[0.18em] text-[var(--text-faint)]">SELECTED WORK</span>
+                </div>
                 <h2 className="font-display text-4xl font-medium tracking-tight sm:text-5xl">
                   Engineering works
                 </h2>
@@ -84,65 +89,48 @@ export default function EngineeringWorks() {
           </Reveal>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p, i) => (
-            <Reveal
-              key={p.title}
-              delay={i * 0.08}
-              className={`lg:col-span-4 ${i === 3 ? "lg:col-start-3" : i === 4 ? "lg:col-start-7" : ""}`}
-            >
+            <Reveal key={p.title} delay={i * 0.07} className={i === 3 ? "lg:col-start-1" : i === 4 ? "lg:col-start-2" : ""}>
               <a
                 href={p.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Open ${p.title} on GitHub`}
-                className="focus-ring group relative flex min-h-[340px] h-full flex-col justify-between overflow-hidden rounded-2xl border border-[var(--border-hair)] bg-[var(--bg-panel)] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--border-hair-strong)] hover:shadow-2xl hover:shadow-black/20 sm:p-7"
+                className="focus-ring group relative flex h-[370px] flex-col justify-between overflow-hidden rounded-2xl border border-[var(--border-hair)] bg-[var(--bg-panel)] p-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-[var(--border-hair-strong)] hover:shadow-2xl hover:shadow-black/20 sm:p-7"
               >
                 <div
-                  className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-[0.08] blur-3xl transition-all duration-500 group-hover:scale-125 group-hover:opacity-[0.16]"
+                  className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-[0.07] blur-3xl transition-all duration-700 group-hover:scale-150 group-hover:opacity-[0.16]"
                   style={{ background: p.accent }}
                 />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px origin-left scale-x-0 transition-transform duration-700 group-hover:scale-x-100" style={{ background: p.accent }} />
                 <div className="relative">
                   <div className="flex items-center justify-between">
                     <p className="font-mono text-[10px] tracking-[0.18em] text-[var(--text-faint)]">
                       {String(i + 1).padStart(2, "0")}
                     </p>
-                    <p.icon
-                      size={22}
-                      strokeWidth={1.5}
-                      style={{ color: p.accent }}
-                    />
+                    <p.icon size={22} strokeWidth={1.5} style={{ color: p.accent }} />
                   </div>
                   <h3 className="font-display mt-5 text-xl font-medium leading-snug sm:text-2xl">
                     {p.title}
                   </h3>
-                  <p className="mt-3 max-w-[46ch] text-sm leading-relaxed text-[var(--text-muted)] sm:text-[15px]">
+                  <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[var(--text-muted)] sm:text-[15px]">
                     {p.description}
                   </p>
-                  <p className="font-mono mt-3 max-w-[50ch] text-xs leading-relaxed text-[var(--text-faint)]">
+                  <p className="font-mono mt-3 line-clamp-3 text-xs leading-relaxed text-[var(--text-faint)]">
                     {p.detail}
                   </p>
                 </div>
-                <div className="relative mt-6 flex items-end justify-between gap-4">
-                  <div className="flex flex-wrap gap-2">
+                <div className="relative mt-5 flex items-end justify-between gap-4">
+                  <div className="flex flex-wrap gap-2 overflow-hidden">
                     {p.stack.map((s) => (
-                      <span
-                        key={s}
-                        className="font-mono rounded-full border border-[var(--border-hair)] px-2.5 py-1 text-[11px] text-[var(--text-muted)]"
-                      >
+                      <span key={s} className="font-mono rounded-full border border-[var(--border-hair)] px-2.5 py-1 text-[11px] text-[var(--text-muted)] transition-colors group-hover:border-[var(--border-hair-strong)]">
                         {s}
                       </span>
                     ))}
                   </div>
-                  <ArrowUpRight
-                    size={18}
-                    className="shrink-0 text-[var(--text-faint)] transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[var(--text-primary)]"
-                  />
+                  <ArrowUpRight size={18} className="shrink-0 text-[var(--text-faint)] transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-[var(--text-primary)]" />
                 </div>
-                <span
-                  className="absolute bottom-0 left-7 right-7 h-px origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
-                  style={{ background: p.accent }}
-                />
               </a>
             </Reveal>
           ))}
