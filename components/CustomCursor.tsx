@@ -3,6 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Rocket, Volume2, VolumeX } from "lucide-react";
 
+type RocketAudio = {
+  ctx: AudioContext;
+  carrier: OscillatorNode;
+  shimmer: OscillatorNode;
+  filter: BiquadFilterNode;
+  gain: GainNode;
+  shimmerGain: GainNode;
+};
+
 export default function CustomCursor() {
   const [enabled, setEnabled] = useState(true);
   const [ready, setReady] = useState(false);
@@ -14,10 +23,10 @@ export default function CustomCursor() {
   const target = useRef({ x: 0, y: 0 });
   const current = useRef({ x: 0, y: 0 });
   const hoveringRef = useRef(false);
-  const audioRef = useRef<AudioContext | null>(null);
-  const lastSoundAt = useRef(0);
+  const audioRef = useRef<RocketAudio | null>(null);
   const lastPoint = useRef({ x: 0, y: 0 });
   const soundUnlocked = useRef(false);
+  const soundActivity = useRef(0);
 
   useEffect(() => {
     hoveringRef.current = hovering;
@@ -35,11 +44,25 @@ export default function CustomCursor() {
       current.current.y += dy * 0.18;
 
       if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate3d(${current.current.x - 10}px, ${current.current.y - 10}px, 0) rotate(${Math.max(-22, Math.min(22, dx * 0.45))}deg)`;
+        const tilt = Math.max(-22, Math.min(22, dx * 0.45));
+        cursorRef.current.style.transform = `translate3d(${current.current.x - 10}px, ${current.current.y - 10}px, 0) rotate(${tilt}deg)`;
       }
       if (ringRef.current) {
         ringRef.current.style.transform = `translate3d(${current.current.x - 18}px, ${current.current.y - 18}px, 0) scale(${hoveringRef.current ? 1.5 : 1})`;
       }
+
+      const audio = audioRef.current;
+      if (audio && audio.ctx.state === "running") {
+        soundActivity.current *= 0.94;
+        const now = audio.ctx.currentTime;
+        const targetGain = enabled ? 0.001 + soundActivity.current * 0.016 : 0;
+        audio.gain.gain.linearRampToValueAtTime(targetGain, now + 0.035);
+        audio.shimmerGain.gain.linearRampToValueAtTime(
+          enabled ? soundActivity.current * 0.005 : 0,
+          now + 0.045,
+        );
+      }
+
       rafRef.current = requestAnimationFrame(moveCursor);
     };
 
@@ -48,58 +71,72 @@ export default function CustomCursor() {
       const AudioContextClass = window.AudioContext ||
         (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AudioContextClass) return;
-      audioRef.current = audioRef.current ?? new AudioContextClass();
-      void audioRef.current.resume();
-      soundUnlocked.current = true;
-      setReady(true);
-    };
 
-    const playRocketWhoosh = (distance: number) => {
-      if (!enabled || !soundUnlocked.current || !audioRef.current || distance < 20) return;
-      const now = performance.now();
-      if (now - lastSoundAt.current < 115) return;
-      lastSoundAt.current = now;
-
-      const ctx = audioRef.current;
-      if (ctx.state !== "running") return;
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      const ctx = audioRef.current?.ctx ?? new AudioContextClass();
+      const carrier = ctx.createOscillator();
+      const shimmer = ctx.createOscillator();
       const filter = ctx.createBiquadFilter();
-      const startFreq = 180 + Math.min(distance, 110) * 2.2;
-      const endFreq = startFreq * 1.8;
+      const gain = ctx.createGain();
+      const shimmerGain = ctx.createGain();
 
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.09);
+      carrier.type = "sine";
+      carrier.frequency.value = 155;
+      shimmer.type = "sine";
+      shimmer.frequency.value = 310;
 
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(900, ctx.currentTime);
-      filter.frequency.exponentialRampToValueAtTime(2400, ctx.currentTime + 0.09);
+      filter.frequency.value = 1050;
+      filter.Q.value = 0.6;
 
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.018, ctx.currentTime + 0.012);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.09);
+      gain.gain.value = 0.001;
+      shimmerGain.gain.value = 0;
 
-      osc.connect(filter);
+      carrier.connect(filter);
+      shimmer.connect(shimmerGain);
+      shimmerGain.connect(filter);
       filter.connect(gain);
       gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.1);
+
+      carrier.start();
+      shimmer.start();
+
+      audioRef.current = { ctx, carrier, shimmer, filter, gain, shimmerGain };
+      void ctx.resume();
+      soundUnlocked.current = true;
+      setReady(true);
     };
 
     const onPointerMove = (event: PointerEvent) => {
       target.current.x = event.clientX;
       target.current.y = event.clientY;
+
       const dx = event.clientX - lastPoint.current.x;
       const dy = event.clientY - lastPoint.current.y;
-      playRocketWhoosh(Math.hypot(dx, dy));
+      const distance = Math.hypot(dx, dy);
+      const speed = Math.min(distance / 28, 1);
+      const audio = audioRef.current;
+
+      // No rate limit: every movement continuously modulates one soft rocket sound bed.
+      if (enabled && audio && audio.ctx.state === "running") {
+        const now = audio.ctx.currentTime;
+        soundActivity.current = Math.min(1, soundActivity.current * 0.35 + speed * 0.9);
+        audio.carrier.frequency.setTargetAtTime(135 + speed * 90, now, 0.05);
+        audio.shimmer.frequency.setTargetAtTime(270 + speed * 180, now, 0.055);
+        audio.filter.frequency.setTargetAtTime(
+          800 + speed * 950 + (hoveringRef.current ? 300 : 0),
+          now,
+          0.065,
+        );
+        audio.gain.gain.setTargetAtTime(0.001 + soundActivity.current * 0.016, now, 0.05);
+        audio.shimmerGain.gain.setTargetAtTime(soundActivity.current * 0.005, now, 0.06);
+      }
+
       lastPoint.current.x = event.clientX;
       lastPoint.current.y = event.clientY;
       setVisible(true);
 
       const interactive = (event.target as HTMLElement | null)?.closest(
-        "a, button, [role='button'], input, textarea, select"
+        "a, button, [role='button'], input, textarea, select",
       );
       setHovering(Boolean(interactive));
     };
@@ -120,8 +157,19 @@ export default function CustomCursor() {
       document.documentElement.removeEventListener("mouseleave", onPointerLeave);
       document.documentElement.removeEventListener("mouseenter", onPointerEnter);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      audioRef.current?.close();
+
+      const audio = audioRef.current;
+      if (audio) {
+        try {
+          audio.carrier.stop();
+          audio.shimmer.stop();
+        } catch {
+          // Oscillators may already be stopped during cleanup.
+        }
+        void audio.ctx.close();
+      }
       audioRef.current = null;
+      soundUnlocked.current = false;
     };
   }, [enabled]);
 
@@ -135,17 +183,13 @@ export default function CustomCursor() {
       <div
         ref={ringRef}
         aria-hidden="true"
-        className={`pointer-events-none fixed left-0 top-0 z-[100] flex h-9 w-9 items-center justify-center rounded-full border border-white/30 transition-opacity duration-200 ${
-          visible && enabled ? "opacity-100" : "opacity-0"
-        }`}
+        className={`pointer-events-none fixed left-0 top-0 z-[100] flex h-9 w-9 items-center justify-center rounded-full border border-white/30 transition-opacity duration-200 ${visible && enabled ? "opacity-100" : "opacity-0"}`}
         style={{ transitionProperty: "transform, opacity" }}
       />
       <div
         ref={cursorRef}
         aria-hidden="true"
-        className={`pointer-events-none fixed left-0 top-0 z-[101] flex h-5 w-5 items-center justify-center text-[var(--accent-cyan)] drop-shadow-[0_0_9px_rgba(125,211,252,0.75)] transition-opacity duration-200 ${
-          visible && enabled ? "opacity-100" : "opacity-0"
-        }`}
+        className={`pointer-events-none fixed left-0 top-0 z-[101] flex h-5 w-5 items-center justify-center text-[var(--accent-cyan)] drop-shadow-[0_0_9px_rgba(125,211,252,0.75)] transition-opacity duration-200 ${visible && enabled ? "opacity-100" : "opacity-0"}`}
       >
         <Rocket size={18} strokeWidth={1.7} />
         <span className="pointer-events-none absolute -bottom-1 left-1/2 h-2 w-px -translate-x-1/2 bg-[var(--accent-amber)] opacity-80 blur-[1px]" />
