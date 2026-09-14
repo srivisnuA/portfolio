@@ -1,5 +1,6 @@
 import Nav from "@/components/Nav";
 import MeshBackdrop from "@/components/MeshBackdrop";
+import ScrollProgress from "@/components/ScrollProgress";
 import Hero from "@/components/Hero";
 import FeaturedPatent from "@/components/FeaturedPatent";
 import EngineeringWorks from "@/components/EngineeringWorks";
@@ -11,6 +12,7 @@ export default function Home() {
     <div className="bg-noise relative min-h-screen">
       <MeshBackdrop />
       <Nav />
+      <ScrollProgress />
       <main>
         <Hero />
         <FeaturedPatent />
