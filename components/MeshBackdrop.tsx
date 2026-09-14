@@ -17,9 +17,10 @@ export default function MeshBackdrop() {
   const smoothX = useSpring(mouseX, { stiffness: 55, damping: 20 });
   const smoothY = useSpring(mouseY, { stiffness: 55, damping: 20 });
   const scrollVelocity = useMotionValue(0);
-  const smoothVelocity = useSpring(scrollVelocity, { stiffness: 110, damping: 24, mass: 0.55 });
+  const smoothVelocity = useSpring(scrollVelocity, { stiffness: 150, damping: 26, mass: 0.5 });
   const lastScroll = useRef(0);
   const lastTime = useRef(0);
+  const settleFrame = useRef<number | null>(null);
   const lastMove = useRef(0);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function MeshBackdrop() {
       const now = performance.now();
       const dy = window.scrollY - lastScroll.current;
       const dt = Math.max(12, now - lastTime.current);
-      const velocity = Math.max(-3.2, Math.min(3.2, (dy / dt) * 1.4));
+      const velocity = Math.max(-4, Math.min(4, (dy / dt) * 1.65));
       scrollVelocity.set(velocity);
       lastScroll.current = window.scrollY;
       lastTime.current = now;
@@ -38,9 +39,8 @@ export default function MeshBackdrop() {
     };
 
     const settle = () => {
-      const now = performance.now();
-      if (now - lastMove.current > 70) scrollVelocity.set(0);
-      requestAnimationFrame(settle);
+      if (performance.now() - lastMove.current > 65) scrollVelocity.set(0);
+      settleFrame.current = requestAnimationFrame(settle);
     };
 
     const onPointerMove = (event: PointerEvent) => {
@@ -50,35 +50,35 @@ export default function MeshBackdrop() {
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointermove", onPointerMove, { passive: true });
-    const frame = requestAnimationFrame(settle);
+    settleFrame.current = requestAnimationFrame(settle);
 
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointerMove);
-      cancelAnimationFrame(frame);
+      if (settleFrame.current !== null) cancelAnimationFrame(settleFrame.current);
     };
   }, [mouseX, mouseY, scrollVelocity]);
 
-  const warp = useTransform(smoothVelocity, [-3.2, -1, 0, 1, 3.2], [2.1, 0.55, 0, -0.55, -2.1]);
-  const streak = useTransform(smoothVelocity, [-3.2, -0.7, 0, 0.7, 3.2], [18, 5, 0, 5, 18]);
+  const warp = useTransform(smoothVelocity, [-4, -1, 0, 1, 4], [2.8, 0.65, 0, -0.65, -2.8]);
+  const streak = useTransform(smoothVelocity, [-4, -0.7, 0, 0.7, 4], [28, 7, 0, 7, 28]);
   const starParallaxX = useTransform(smoothX, [-1, 1], [-20, 20]);
   const starParallaxY = useTransform(smoothY, [-1, 1], [-14, 14]);
   const gridY = useTransform(scrollYProgress, [0, 1], [0, -320]);
-  const gridX = useTransform(smoothVelocity, [-3.2, 0, 3.2], [-90, 0, 90]);
+  const gridX = useTransform(smoothVelocity, [-4, 0, 4], [-150, 0, 150]);
 
   return (
     <div aria-hidden className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
       <div className="absolute inset-0 bg-[#0A0B10]" />
 
       <motion.div
-        style={{ x: useTransform(smoothX, [-1, 1], [-60, 80]), y: useTransform(smoothVelocity, [-3.2, 0, 3.2], [70, 0, -70]) }}
+        style={{ x: useTransform(smoothX, [-1, 1], [-60, 80]), y: useTransform(smoothVelocity, [-4, 0, 4], [100, 0, -100]) }}
         className="absolute -top-52 left-[10%] h-[680px] w-[680px] rounded-full opacity-[0.16] blur-[140px]"
       >
         <div className="h-full w-full rounded-full bg-[radial-gradient(circle,#5EEAD4_0%,transparent_68%)]" />
       </motion.div>
 
       <motion.div
-        style={{ x: useTransform(smoothX, [-1, 1], [100, -90]), y: useTransform(smoothVelocity, [-3.2, 0, 3.2], [-80, 0, 80]) }}
+        style={{ x: useTransform(smoothX, [-1, 1], [100, -90]), y: useTransform(smoothVelocity, [-4, 0, 4], [-110, 0, 110]) }}
         className="absolute top-[12%] -right-52 h-[620px] w-[620px] rounded-full opacity-[0.14] blur-[145px]"
       >
         <div className="h-full w-full rounded-full bg-[radial-gradient(circle,#7DD3FC_0%,transparent_70%)]" />
@@ -92,7 +92,7 @@ export default function MeshBackdrop() {
       </motion.div>
 
       <motion.div
-        style={{ x: gridX, y: gridY, skewY: useTransform(smoothVelocity, [-3.2, 0, 3.2], [-1.8, 0, 1.8]) }}
+        style={{ x: gridX, y: gridY, skewY: useTransform(smoothVelocity, [-4, 0, 4], [-3, 0, 3]) }}
         className="absolute -inset-x-16 -inset-y-[55%] opacity-[0.18]"
       >
         <svg className="h-[210%] w-full">
@@ -111,10 +111,7 @@ export default function MeshBackdrop() {
         </svg>
       </motion.div>
 
-      <motion.svg
-        className="absolute inset-0 h-full w-full"
-        style={{ x: starParallaxX, y: starParallaxY }}
-      >
+      <motion.svg className="absolute inset-0 h-full w-full" style={{ x: starParallaxX, y: starParallaxY }}>
         {stars.map((star, index) => (
           <motion.line
             key={index}
@@ -125,12 +122,18 @@ export default function MeshBackdrop() {
             stroke="#E7E9EE"
             strokeWidth={star.size}
             strokeLinecap="round"
-            style={{ opacity: 0.12 + star.depth * 0.16 }}
+            style={{ opacity: 0.14 + star.depth * 0.17 }}
             animate={{
-              x1: [`calc(${star.x} - ${star.depth * 3}px)`, `calc(${star.x} + ${star.depth * 3}px)`],
-              x2: [`calc(${star.x} + ${star.depth * 3}px)`, `calc(${star.x} - ${star.depth * 3}px)`],
+              y1: [`calc(${star.y} + 110vh)`, `calc(${star.y} - 110vh)`],
+              y2: [`calc(${star.y} + 110vh)`, `calc(${star.y} - 110vh)`],
+              opacity: [0.08, 0.45, 0.08],
             }}
-            transition={{ duration: 5 + (index % 7) * 0.5, repeat: Infinity, repeatType: "reverse", ease: "easeInOut", delay: index * 0.04 }}
+            transition={{
+              duration: 10 + (index % 8) * 1.8,
+              repeat: Infinity,
+              ease: "linear",
+              delay: -(index * 0.55),
+            }}
           />
         ))}
       </motion.svg>
@@ -141,46 +144,61 @@ export default function MeshBackdrop() {
             key={`star-${index}`}
             className="absolute rounded-full bg-[var(--accent-cyan)] shadow-[0_0_16px_rgba(125,211,252,0.35)]"
             style={{ left: star.x, top: star.y, width: star.size + 0.4, height: star.size + 0.4 }}
-            animate={{ opacity: [0.1, 0.55, 0.1], scale: [1, 1.4, 1] }}
-            transition={{ duration: 3 + index * 0.13, repeat: Infinity, ease: "easeInOut", delay: index * 0.17 }}
+            animate={{
+              y: [`110vh`, `-110vh`],
+              opacity: [0.08, 0.62, 0.08],
+              scale: [0.7, 1.35, 0.7],
+            }}
+            transition={{
+              duration: 8 + (index % 6) * 1.4,
+              repeat: Infinity,
+              ease: "linear",
+              delay: -(index * 0.7),
+            }}
           />
         ))}
       </div>
 
       <motion.div
-        style={{ x: useTransform(smoothVelocity, [-3.2, 0, 3.2], [-1000, 0, 1000]), scaleX: streak, opacity: useTransform(smoothVelocity, [-3.2, -0.4, 0, 0.4, 3.2], [0.75, 0.25, 0.02, 0.25, 0.75]) }}
+        style={{ x: useTransform(smoothVelocity, [-4, 0, 4], [-1200, 0, 1200]), scaleX: streak, opacity: useTransform(smoothVelocity, [-4, -0.4, 0, 0.4, 4], [0.82, 0.28, 0.02, 0.28, 0.82]) }}
         className="absolute left-[5%] top-[28%] h-px w-[45vw] max-w-[580px] origin-left bg-gradient-to-r from-transparent via-[var(--accent-cyan)]/65 to-transparent blur-[0.7px]"
       />
       <motion.div
-        style={{ x: useTransform(smoothVelocity, [-3.2, 0, 3.2], [820, 0, -820]), scaleX: streak, opacity: useTransform(smoothVelocity, [-3.2, -0.4, 0, 0.4, 3.2], [0.65, 0.22, 0.02, 0.22, 0.65]) }}
+        style={{ x: useTransform(smoothVelocity, [-4, 0, 4], [980, 0, -980]), scaleX: streak, opacity: useTransform(smoothVelocity, [-4, -0.4, 0, 0.4, 4], [0.72, 0.24, 0.02, 0.24, 0.72]) }}
         className="absolute right-[5%] top-[70%] h-px w-[36vw] max-w-[480px] origin-right bg-gradient-to-l from-transparent via-[var(--accent-teal)]/55 to-transparent blur-[0.7px]"
       />
 
       <motion.div
-        style={{ scaleX: useTransform(smoothVelocity, [-3.2, 0, 3.2], [1.7, 0.2, 1.7]), opacity: useTransform(smoothVelocity, [-3.2, -0.3, 0, 0.3, 3.2], [0.5, 0.12, 0.02, 0.12, 0.5]) }}
+        style={{ scaleX: useTransform(smoothVelocity, [-4, 0, 4], [2.15, 0.2, 2.15]), opacity: useTransform(smoothVelocity, [-4, -0.3, 0, 0.3, 4], [0.58, 0.12, 0.02, 0.12, 0.58]) }}
         className="absolute left-1/2 top-1/2 h-px w-[72vw] -translate-x-1/2 bg-gradient-to-r from-transparent via-[var(--accent-cyan)]/38 to-transparent blur-[1px]"
       />
 
       <motion.div
-        style={{ y: useTransform(smoothVelocity, [-3.2, 0, 3.2], [-260, 0, 260]), scaleY: useTransform(smoothVelocity, [-3.2, 0, 3.2], [1.7, 0.2, 1.7]), opacity: useTransform(smoothVelocity, [-3.2, -0.3, 0, 0.3, 3.2], [0.42, 0.08, 0.01, 0.08, 0.42]) }}
+        style={{ y: useTransform(smoothVelocity, [-4, 0, 4], [-340, 0, 340]), scaleY: useTransform(smoothVelocity, [-4, 0, 4], [2, 0.2, 2]), opacity: useTransform(smoothVelocity, [-4, -0.3, 0, 0.3, 4], [0.48, 0.08, 0.01, 0.08, 0.48]) }}
         className="absolute left-1/2 top-1/2 h-[48vh] w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-[var(--accent-teal)]/25 to-transparent blur-[1px]"
       />
 
       <motion.div
-        style={{ x: useTransform(smoothX, [-1, 1], [-24, 24]), y: useTransform(smoothY, [-1, 1], [-18, 18]), rotate: useTransform(smoothVelocity, [-3.2, 0, 3.2], [-5, 0, 5]), scale: useTransform(smoothVelocity, [-3.2, 0, 3.2], [1.15, 1, 1.15]) }}
+        style={{ x: useTransform(smoothX, [-1, 1], [-24, 24]), y: useTransform(smoothY, [-1, 1], [-18, 18]), rotate: useTransform(smoothVelocity, [-4, 0, 4], [-9, 0, 9]), scale: useTransform(smoothVelocity, [-4, 0, 4], [1.18, 1, 1.18]) }}
         className="absolute left-1/2 top-1/2 hidden h-[min(62vw,760px)] w-[min(62vw,760px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--border-hair)] opacity-[0.2] lg:block"
       >
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-[16%] rounded-full border border-dashed border-[var(--accent-cyan)]/[0.07]"
+          transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-[16%] rounded-full border border-dashed border-[var(--accent-cyan)]/[0.09]"
         />
         <motion.div
           animate={{ rotate: -360 }}
-          transition={{ duration: 42, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-[33%] rounded-full border border-[var(--accent-teal)]/[0.06]"
+          transition={{ duration: 36, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-[33%] rounded-full border border-[var(--accent-teal)]/[0.08]"
         />
       </motion.div>
+
+      <motion.div
+        className="absolute left-1/2 top-[16%] hidden h-2 w-2 rounded-full bg-[var(--accent-cyan)] shadow-[0_0_24px_rgba(125,211,252,0.7)] lg:block"
+        animate={{ x: [-18, 220, 430], y: [60, -20, 120], opacity: [0, 0.8, 0] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+      />
     </div>
   );
 }
