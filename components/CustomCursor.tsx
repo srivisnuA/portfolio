@@ -6,17 +6,22 @@ import { Volume2, VolumeX } from "lucide-react";
 export default function CustomCursor() {
   const [enabled, setEnabled] = useState(true);
   const [ready, setReady] = useState(false);
-  const [hovering, setHovering] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [hovering, setHovering] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const target = useRef({ x: 0, y: 0 });
   const current = useRef({ x: 0, y: 0 });
+  const hoveringRef = useRef(false);
   const audioRef = useRef<AudioContext | null>(null);
   const lastSoundAt = useRef(0);
   const lastPoint = useRef({ x: 0, y: 0 });
   const soundUnlocked = useRef(false);
+
+  useEffect(() => {
+    hoveringRef.current = hovering;
+  }, [hovering]);
 
   useEffect(() => {
     const finePointer = window.matchMedia("(pointer: fine)");
@@ -33,7 +38,7 @@ export default function CustomCursor() {
         cursorRef.current.style.transform = `translate3d(${current.current.x - 4}px, ${current.current.y - 4}px, 0)`;
       }
       if (ringRef.current) {
-        ringRef.current.style.transform = `translate3d(${current.current.x - 18}px, ${current.current.y - 18}px, 0) scale(${hovering ? 1.45 : 1})`;
+        ringRef.current.style.transform = `translate3d(${current.current.x - 18}px, ${current.current.y - 18}px, 0) scale(${hoveringRef.current ? 1.45 : 1})`;
       }
       rafRef.current = requestAnimationFrame(moveCursor);
     };
@@ -44,7 +49,7 @@ export default function CustomCursor() {
         (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AudioContextClass) return;
       audioRef.current = audioRef.current ?? new AudioContextClass();
-      audioRef.current.resume();
+      void audioRef.current.resume();
       soundUnlocked.current = true;
       setReady(true);
     };
@@ -109,7 +114,7 @@ export default function CustomCursor() {
       audioRef.current?.close();
       audioRef.current = null;
     };
-  }, [enabled, hovering]);
+  }, [enabled]);
 
   useEffect(() => {
     document.documentElement.style.setProperty("--custom-cursor", enabled ? "none" : "auto");
@@ -136,8 +141,8 @@ export default function CustomCursor() {
       <button
         type="button"
         onClick={() => setEnabled((value) => !value)}
-        aria-label={enabled ? "Disable cursor sound effects" : "Enable cursor sound effects"}
-        title={enabled ? "Cursor sound on" : "Cursor sound off"}
+        aria-label={enabled ? "Disable cursor and sound effects" : "Enable cursor and sound effects"}
+        title={enabled ? "Cursor and sound on" : "Cursor and sound off"}
         className="focus-ring fixed bottom-5 right-5 z-[90] flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-hair)] bg-[var(--bg-panel)]/85 text-[var(--text-muted)] shadow-lg backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:text-[var(--text-primary)]"
       >
         {enabled && ready ? <Volume2 size={16} /> : <VolumeX size={16} />}
