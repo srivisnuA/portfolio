@@ -4,16 +4,24 @@ import Reveal from "./Reveal";
 
 const skillGroups = [
   {
-    label: "Languages",
-    items: ["Python", "Java", "JavaScript", "SQL"],
+    label: "Software Engineering",
+    items: ["Python", "Java", "JavaScript", "SQL", "REST APIs", "Git", "Linux", "Unix Shell Scripting"],
+    id: "engineering",
   },
   {
-    label: "AI & Data",
-    items: ["PyTorch", "TensorFlow", "Scikit-learn", "OpenCV", "Pandas", "NumPy"],
+    label: "Data Analytics",
+    items: ["Pandas", "NumPy", "EDA", "Data Cleaning", "Feature Engineering", "Excel", "Power BI", "Tableau", "Matplotlib", "Seaborn", "Plotly"],
+    id: "analytics",
   },
   {
-    label: "Engineering",
-    items: ["ETL Pipelines", "Flask", "REST APIs", "Git", "Linux"],
+    label: "Data & Machine Learning",
+    items: ["ETL Pipelines", "Web Scraping", "Data Validation", "Scikit-learn", "Regression", "Classification", "Clustering"],
+    id: "data-ml",
+  },
+  {
+    label: "Databases & Platforms",
+    items: ["MySQL", "PostgreSQL", "SQL Queries", "Joins", "Aggregations", "Jupyter", "VS Code"],
+    id: "platforms",
   },
 ];
 
@@ -26,9 +34,13 @@ export default function Arsenal() {
             <h2 className="font-display text-4xl font-medium tracking-tight sm:text-5xl">
               Technical arsenal
             </h2>
+            <p className="mt-4 max-w-[52ch] text-base leading-relaxed text-[var(--text-muted)] sm:text-lg">
+              Code for the system, analysis for the signal, and engineering for
+              the handoff between them.
+            </p>
             <div className="mt-10 space-y-8">
               {skillGroups.map((group) => (
-                <div key={group.label}>
+                <div key={group.label} id={group.id} className="scroll-mt-28">
                   <p className="font-mono text-xs text-[var(--text-faint)]">
                     {group.label}
                   </p>
@@ -64,9 +76,9 @@ export default function Arsenal() {
                   O Clock Software, Chennai
                 </p>
                 <p className="mt-2 max-w-[48ch] text-sm leading-relaxed text-[var(--text-muted)]">
-                  Built Python ETL pipelines and automation scripts, supported
-                  feature engineering for ML models, and worked across
-                  version-controlled codebases with the team.
+                  Designed Python ETL pipelines, explored datasets with Pandas
+                  and NumPy, automated recurring data-processing tasks, and
+                  supported feature engineering and model-ready workflows.
                 </p>
               </div>
 
@@ -80,6 +92,22 @@ export default function Arsenal() {
                 </h3>
                 <p className="text-sm text-[var(--text-muted)]">
                   Sathyabama Institute of Science and Technology, Chennai
+                </p>
+                <p className="font-mono mt-2 text-xs text-[var(--text-faint)]">
+                  CGPA 7.44 / 10.0
+                </p>
+              </div>
+
+              <div className="relative">
+                <span className="absolute -left-[29px] top-1.5 h-2 w-2 rounded-full bg-[var(--accent-amber)]" />
+                <p className="font-mono text-xs text-[var(--text-faint)]">
+                  Mar 2026
+                </p>
+                <h3 className="font-display mt-1.5 text-lg font-medium">
+                  Indian Patent Application
+                </h3>
+                <p className="text-sm text-[var(--text-muted)]">
+                  FaceFare — Application No. 202641031039 A
                 </p>
               </div>
             </div>
