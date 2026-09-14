@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { Mail, FileText, ArrowDown } from "lucide-react";
+import { Mail, FileText, ArrowDown, ArrowUpRight } from "lucide-react";
 import { GithubIcon } from "./BrandIcons";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -35,7 +35,7 @@ export default function Hero() {
           variants={item}
           className="font-mono text-sm text-[var(--accent-teal)] tracking-tight"
         >
-          Chennai, India — Data Engineering &amp; Machine Learning
+          Chennai, India — Software Engineering · Data Analytics · Machine Learning
         </motion.p>
 
         <motion.h1
@@ -49,15 +49,22 @@ export default function Hero() {
           variants={item}
           className="mt-8 max-w-[52ch] text-lg leading-relaxed text-[var(--text-muted)] sm:text-xl"
         >
-          I build the pipelines that clean the data and the models that make
-          sense of it — then ship the whole thing as something people can
-          actually use. Most recently, that turned into a filed patent.
+          I write the code, read the patterns, and turn both into products that
+          work — from software systems and data stories to models that move
+          ideas from insight to impact.
         </motion.p>
 
         <motion.div
           variants={item}
           className="mt-10 flex flex-wrap items-center gap-3"
         >
+          <a
+            href="#work"
+            className="focus-ring inline-flex items-center gap-2 rounded-full bg-[var(--text-primary)] px-5 py-2.5 text-sm font-medium text-[#0A0B10] transition-opacity hover:opacity-85"
+          >
+            Explore work
+            <ArrowUpRight size={16} strokeWidth={1.75} />
+          </a>
           <a
             href="https://github.com/srivisnuA"
             target="_blank"
@@ -78,8 +85,10 @@ export default function Hero() {
             </span>
           </a>
           <a
-            href="/resume.pdf"
-            className="focus-ring inline-flex items-center gap-2 rounded-full bg-[var(--text-primary)] px-5 py-2.5 text-sm font-medium text-[#0A0B10] transition-opacity hover:opacity-85"
+            href="https://drive.google.com/file/d/1G-w2AC7d794tFvq90j7YmbDGAOy9qZYH/view?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="focus-ring inline-flex items-center gap-2 rounded-full border border-[var(--border-hair-strong)] bg-[var(--bg-panel)] px-5 py-2.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:border-[var(--accent-cyan)]/40 hover:bg-[#171a24]"
           >
             <FileText size={16} strokeWidth={1.75} />
             Resume
