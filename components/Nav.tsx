@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 const links = [
   { href: "#patent", label: "Patent" },
@@ -11,23 +12,66 @@ const links = [
 ];
 
 export default function Nav() {
+  const [active, setActive] = useState("#patent");
+
+  useEffect(() => {
+    const sections = links
+      .map((link) => document.querySelector(link.href))
+      .filter((section): section is Element => Boolean(section));
+
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visible?.target.id) {
+          setActive(`#${visible.target.id}`);
+        }
+      },
+      { rootMargin: "-28% 0px -58% 0px", threshold: [0.05, 0.2, 0.5] },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <motion.nav
+      aria-label="Primary navigation"
       initial={{ opacity: 0, y: -14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.5, duration: 0.6 }}
-      className="fixed left-1/2 top-6 z-50 -translate-x-1/2"
+      className="fixed left-1/2 top-6 z-50 max-w-[calc(100vw-2rem)] -translate-x-1/2"
     >
-      <div className="glass flex items-center gap-1 rounded-full px-2 py-2 shadow-lg shadow-black/20">
-        {links.map((l) => (
-          <a
-            key={l.href}
-            href={l.href}
-            className="focus-ring rounded-full px-4 py-1.5 text-sm text-[var(--text-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
-          >
-            {l.label}
-          </a>
-        ))}
+      <div
+        className="glass flex max-w-full items-center gap-1 overflow-x-auto rounded-full px-2 py-2 shadow-lg shadow-black/20"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {links.map((l) => {
+          const isActive = active === l.href;
+
+          return (
+            <a
+              key={l.href}
+              href={l.href}
+              aria-current={isActive ? "location" : undefined}
+              className="focus-ring relative shrink-0 rounded-full px-4 py-1.5 text-sm text-[var(--text-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
+            >
+              {l.label}
+              {isActive && (
+                <motion.span
+                  layoutId="active-nav"
+                  className="absolute inset-x-3 -bottom-0.5 h-px"
+                  style={{ background: "var(--accent-cyan)" }}
+                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
+              )}
+            </a>
+          );
+        })}
       </div>
     </motion.nav>
   );
