@@ -13,7 +13,6 @@ const projects = [
     stack: ["Python", "YOLOv8", "CNN", "Flask", "OpenCV", "OCR"],
     href: "https://github.com/srivisnuA/Vision-Based-Safety-Lapse-Detection-During-Vehicle-Refueling",
     icon: Fuel,
-    span: "lg:col-span-2 lg:row-span-2",
     accent: "var(--accent-cyan)",
   },
   {
@@ -25,7 +24,6 @@ const projects = [
     stack: ["Python", "Pandas", "Scikit-learn", "Plotly", "Matplotlib"],
     href: "https://github.com/srivisnuA/Historical-stock-price-prediction",
     icon: TrendingUp,
-    span: "lg:col-span-1",
     accent: "var(--accent-teal)",
   },
   {
@@ -37,7 +35,6 @@ const projects = [
     stack: ["Pandas", "NumPy", "Scikit-learn", "Excel", "Tableau"],
     href: "https://github.com/srivisnuA/customer-segmentation-analysis",
     icon: Users,
-    span: "lg:col-span-1",
     accent: "#B39DFF",
   },
   {
@@ -49,7 +46,6 @@ const projects = [
     stack: ["Python", "OpenCV", "MTCNN", "FaceNet"],
     href: "https://github.com/srivisnuA/FaceFare",
     icon: ScanFace,
-    span: "lg:col-span-2",
     accent: "var(--accent-amber)",
   },
   {
@@ -61,7 +57,6 @@ const projects = [
     stack: ["Python", "OpenCV", "PyQt5", "Pillow"],
     href: "https://github.com/srivisnuA/Low-light-enhancement-of-ISRO-S-OHRC-image",
     icon: Telescope,
-    span: "lg:col-span-2",
     accent: "var(--accent-amber)",
   },
 ];
@@ -70,35 +65,54 @@ export default function EngineeringWorks() {
   return (
     <section id="work" className="relative z-10 px-6 py-28 sm:px-10 sm:py-36">
       <div className="mx-auto max-w-6xl">
-        <Reveal>
-          <h2 className="font-display text-4xl font-medium tracking-tight sm:text-5xl">
-            Engineering works
-          </h2>
-          <p className="mt-4 max-w-[55ch] text-base text-[var(--text-muted)] sm:text-lg">
-            Software that processes, predicts, protects, and pays — with data
-            doing the connecting between each idea.
-          </p>
-        </Reveal>
+        <div id="engineering" className="scroll-mt-28">
+          <Reveal>
+            <div className="flex items-end justify-between gap-6">
+              <div>
+                <h2 className="font-display text-4xl font-medium tracking-tight sm:text-5xl">
+                  Engineering works
+                </h2>
+                <p className="mt-4 max-w-[55ch] text-base text-[var(--text-muted)] sm:text-lg">
+                  Software that processes, predicts, protects, and pays — with data
+                  doing the connecting between each idea.
+                </p>
+              </div>
+              <span className="hidden font-mono text-xs text-[var(--text-faint)] sm:block">
+                05 PROJECTS
+              </span>
+            </div>
+          </Reveal>
+        </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-3 lg:auto-rows-[minmax(180px,auto)]">
+        <div className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-12">
           {projects.map((p, i) => (
-            <Reveal key={p.title} delay={i * 0.08} className={p.span}>
+            <Reveal
+              key={p.title}
+              delay={i * 0.08}
+              className={`lg:col-span-4 ${i === 3 ? "lg:col-start-3" : i === 4 ? "lg:col-start-7" : ""}`}
+            >
               <a
                 href={p.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="focus-ring group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-[var(--border-hair)] bg-[var(--bg-panel)] p-7 transition-colors hover:border-[var(--border-hair-strong)]"
+                aria-label={`Open ${p.title} on GitHub`}
+                className="focus-ring group relative flex min-h-[340px] h-full flex-col justify-between overflow-hidden rounded-2xl border border-[var(--border-hair)] bg-[var(--bg-panel)] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--border-hair-strong)] hover:shadow-2xl hover:shadow-black/20 sm:p-7"
               >
                 <div
-                  className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-[0.08] blur-3xl transition-opacity group-hover:opacity-[0.16]"
+                  className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-[0.08] blur-3xl transition-all duration-500 group-hover:scale-125 group-hover:opacity-[0.16]"
                   style={{ background: p.accent }}
                 />
                 <div className="relative">
-                  <p.icon
-                    size={22}
-                    strokeWidth={1.5}
-                    style={{ color: p.accent }}
-                  />
+                  <div className="flex items-center justify-between">
+                    <p className="font-mono text-[10px] tracking-[0.18em] text-[var(--text-faint)]">
+                      {String(i + 1).padStart(2, "0")}
+                    </p>
+                    <p.icon
+                      size={22}
+                      strokeWidth={1.5}
+                      style={{ color: p.accent }}
+                    />
+                  </div>
                   <h3 className="font-display mt-5 text-xl font-medium leading-snug sm:text-2xl">
                     {p.title}
                   </h3>
@@ -109,7 +123,7 @@ export default function EngineeringWorks() {
                     {p.detail}
                   </p>
                 </div>
-                <div className="relative mt-6 flex items-center justify-between">
+                <div className="relative mt-6 flex items-end justify-between gap-4">
                   <div className="flex flex-wrap gap-2">
                     {p.stack.map((s) => (
                       <span
@@ -122,9 +136,13 @@ export default function EngineeringWorks() {
                   </div>
                   <ArrowUpRight
                     size={18}
-                    className="shrink-0 text-[var(--text-faint)] transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[var(--text-primary)]"
+                    className="shrink-0 text-[var(--text-faint)] transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[var(--text-primary)]"
                   />
                 </div>
+                <span
+                  className="absolute bottom-0 left-7 right-7 h-px origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
+                  style={{ background: p.accent }}
+                />
               </a>
             </Reveal>
           ))}
