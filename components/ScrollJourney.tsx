@@ -10,7 +10,7 @@ export default function ScrollJourney() {
   const [trackHeight, setTrackHeight] = useState(520);
 
   useEffect(() => {
-    const update = () => setTrackHeight(Math.max(360, window.innerHeight - 150));
+    const update = () => setTrackHeight(Math.min(620, Math.max(360, window.innerHeight * 0.72)));
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
@@ -25,18 +25,13 @@ export default function ScrollJourney() {
   if (prefersReducedMotion) return null;
 
   return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none fixed right-5 top-1/2 z-40 hidden -translate-y-1/2 lg:block"
-    >
+    <div aria-hidden="true" className="pointer-events-none fixed right-5 top-1/2 z-40 hidden -translate-y-1/2 lg:block">
       <div className="relative h-[min(72vh,620px)] w-10">
         <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-[var(--border-hair-strong)] to-transparent" />
-        <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 opacity-70">
-          <motion.div
-            style={{ height: rocketY, maxHeight: "100%" }}
-            className="w-px origin-top bg-gradient-to-b from-[var(--accent-cyan)] via-[var(--accent-teal)] to-transparent"
-          />
-        </div>
+        <motion.div
+          style={{ height: rocketY }}
+          className="absolute left-1/2 top-0 w-px -translate-x-1/2 origin-top bg-gradient-to-b from-[var(--accent-cyan)] via-[var(--accent-teal)] to-transparent"
+        />
 
         {[18, 38, 58, 78].map((point, index) => (
           <motion.span
