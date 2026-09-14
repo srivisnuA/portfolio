@@ -1,51 +1,63 @@
 "use client";
 
-import { ArrowUpRight, Fuel, TrendingUp, Telescope, Users } from "lucide-react";
+import { ArrowUpRight, Fuel, TrendingUp, Telescope, Users, ScanFace } from "lucide-react";
 import Reveal from "./Reveal";
 
 const projects = [
   {
     title: "Refueling Safety & Fraud Detection",
     description:
-      "Real-time nozzle tracking and fuel-type classification during vehicle refueling, built at ACE-Hacks 2025 with Renault's AI Lab. Flags unsafe handling and meter-tampering scams as they happen.",
+      "A real-time vision system for safer vehicle refueling, combining safety detection, fuel classification, and anomaly checks in one workflow.",
     detail:
-      "YOLOv8 handles nozzle localization frame-by-frame; a separate CNN classifies fuel grade (E5/E10/E20) from pump labels; OCR cross-checks the meter reading against expected dispense rate to catch tampering.",
-    stack: ["YOLOv8", "CNN", "Flask", "OpenCV", "OCR"],
+      "YOLOv8 tracks the nozzle, a CNN classifies fuel grades, and OCR validates meter readings; Flask exposes live camera feeds, safety status, and anomaly alerts.",
+    stack: ["Python", "YOLOv8", "CNN", "Flask", "OpenCV", "OCR"],
     href: "https://github.com/srivisnuA/Vision-Based-Safety-Lapse-Detection-During-Vehicle-Refueling",
     icon: Fuel,
     span: "lg:col-span-2 lg:row-span-2",
     accent: "var(--accent-cyan)",
   },
   {
-    title: "Historical Stock Price Prediction",
+    title: "Historical Stock Analysis & Prediction",
     description:
-      "Merges scraped fundamentals with market data to forecast price trends with a Random Forest model.",
+      "Turns market history and scraped fundamentals into an interpretable financial analysis and forecasting workflow.",
     detail:
-      "yfinance supplies OHLC price history; BeautifulSoup scrapes revenue data from MacroTrends; both feed a RandomForestRegressor, with Plotly rendering actual-vs-predicted trend lines.",
-    stack: ["Scikit-learn", "BeautifulSoup", "yfinance", "Plotly"],
+      "yfinance provides historical prices while BeautifulSoup collects revenue data; Pandas handles transformation, Plotly and Matplotlib expose trends, and Random Forest estimates future prices.",
+    stack: ["Python", "Pandas", "Scikit-learn", "Plotly", "Matplotlib"],
     href: "https://github.com/srivisnuA/Historical-stock-price-prediction",
     icon: TrendingUp,
     span: "lg:col-span-1",
     accent: "var(--accent-teal)",
   },
   {
-    title: "Customer Segmentation Analysis",
+    title: "Customer Behavior Analysis & Segmentation",
     description:
-      "Clusters customer behavior data to surface distinct spending segments for targeted business decisions.",
+      "Transforms customer and sales data into actionable segments, dashboards, and business-facing visual stories.",
     detail:
-      "K-Means clustering over purchase-history features, with results exported into a Tableau workbook for stakeholder-facing exploration rather than a static report.",
-    stack: ["Scikit-learn", "Pandas", "Tableau"],
+      "Cleaned and explored datasets with Pandas and NumPy, applied clustering to behavioral features, and built interactive Excel and Tableau views for segment-level analysis.",
+    stack: ["Pandas", "NumPy", "Scikit-learn", "Excel", "Tableau"],
     href: "https://github.com/srivisnuA/customer-segmentation-analysis",
     icon: Users,
     span: "lg:col-span-1",
     accent: "#B39DFF",
   },
   {
+    title: "FaceFare — Contactless Transit Payments",
+    description:
+      "A facial-recognition payment concept connecting passenger identification, fare calculation, wallet flows, and transaction processing.",
+    detail:
+      "Built with OpenCV, MTCNN, and FaceNet; structured passenger, trip, wallet, and transaction workflows around a privacy-preserving identity architecture that led to an Indian patent application.",
+    stack: ["Python", "OpenCV", "MTCNN", "FaceNet"],
+    href: "https://github.com/srivisnuA/FaceFare",
+    icon: ScanFace,
+    span: "lg:col-span-2",
+    accent: "var(--accent-amber)",
+  },
+  {
     title: "ISRO OHRC Image Enhancement",
     description:
-      "A desktop tool for enhancing low-light lunar orbiter imagery from ISRO's OHRC camera — brightness, contrast, and gamma correction with an annotation workflow.",
+      "A desktop workflow for improving low-light lunar imagery with controlled enhancement and annotation tools.",
     detail:
-      "PyQt5 desktop app with live-preview sliders for brightness, contrast, and gamma; built for reviewing and annotating deep-space frames where standard exposure falls short.",
+      "PyQt5 provides live preview controls for brightness, contrast, and gamma correction; OpenCV and Pillow handle the image-processing pipeline.",
     stack: ["Python", "OpenCV", "PyQt5", "Pillow"],
     href: "https://github.com/srivisnuA/Low-light-enhancement-of-ISRO-S-OHRC-image",
     icon: Telescope,
@@ -63,8 +75,8 @@ export default function EngineeringWorks() {
             Engineering works
           </h2>
           <p className="mt-4 max-w-[55ch] text-base text-[var(--text-muted)] sm:text-lg">
-            Vision systems, forecasting pipelines, and tools for domains I
-            hadn&apos;t worked in until the project demanded it.
+            Software that processes, predicts, protects, and pays — with data
+            doing the connecting between each idea.
           </p>
         </Reveal>
 
