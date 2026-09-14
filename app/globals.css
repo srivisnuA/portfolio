@@ -11,6 +11,7 @@
   --accent-cyan: #7DD3FC;
   --accent-teal: #5EEAD4;
   --accent-amber: #F5B860;
+  --custom-cursor: none;
 }
 
 @theme inline {
@@ -25,6 +26,7 @@
 
 html {
   scroll-behavior: smooth;
+  cursor: var(--custom-cursor);
 }
 
 body {
@@ -53,6 +55,12 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@media (pointer: coarse) {
+  html {
+    cursor: auto;
   }
 }
 
