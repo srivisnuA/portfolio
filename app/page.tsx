@@ -3,6 +3,7 @@ import MeshBackdrop from "@/components/MeshBackdrop";
 import ScrollProgress from "@/components/ScrollProgress";
 import CustomCursor from "@/components/CustomCursor";
 import ScrollJourney from "@/components/ScrollJourney";
+import RecruiterSignals from "@/components/RecruiterSignals";
 import Hero from "@/components/Hero";
 import FeaturedPatent from "@/components/FeaturedPatent";
 import EngineeringWorks from "@/components/EngineeringWorks";
@@ -19,6 +20,7 @@ export default function Home() {
       <ScrollJourney />
       <main>
         <Hero />
+        <RecruiterSignals />
         <FeaturedPatent />
         <EngineeringWorks />
         <Arsenal />
