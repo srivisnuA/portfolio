@@ -3,13 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Rocket, Volume2, VolumeX } from "lucide-react";
 
-type RocketAudio = {
+type MelodyAudio = {
   ctx: AudioContext;
-  carrier: OscillatorNode;
-  shimmer: OscillatorNode;
+  master: GainNode;
   filter: BiquadFilterNode;
-  gain: GainNode;
-  shimmerGain: GainNode;
+  voices: Array<{ osc: OscillatorNode; gain: GainNode }>;
 };
 
 export default function CustomCursor() {
@@ -23,10 +21,10 @@ export default function CustomCursor() {
   const target = useRef({ x: 0, y: 0 });
   const current = useRef({ x: 0, y: 0 });
   const hoveringRef = useRef(false);
-  const audioRef = useRef<RocketAudio | null>(null);
+  const audioRef = useRef<MelodyAudio | null>(null);
   const lastPoint = useRef({ x: 0, y: 0 });
   const soundUnlocked = useRef(false);
-  const soundActivity = useRef(0);
+  const smoothSpeed = useRef(0);
 
   useEffect(() => {
     hoveringRef.current = hovering;
@@ -44,7 +42,7 @@ export default function CustomCursor() {
       current.current.y += dy * 0.18;
 
       if (cursorRef.current) {
-        const tilt = Math.max(-22, Math.min(22, dx * 0.45));
+        const tilt = Math.max(-18, Math.min(18, dx * 0.38));
         cursorRef.current.style.transform = `translate3d(${current.current.x - 10}px, ${current.current.y - 10}px, 0) rotate(${tilt}deg)`;
       }
       if (ringRef.current) {
@@ -53,14 +51,27 @@ export default function CustomCursor() {
 
       const audio = audioRef.current;
       if (audio && audio.ctx.state === "running") {
-        soundActivity.current *= 0.94;
+        smoothSpeed.current *= 0.94;
+        const energy = smoothSpeed.current;
         const now = audio.ctx.currentTime;
-        const targetGain = enabled ? 0.001 + soundActivity.current * 0.016 : 0;
-        audio.gain.gain.linearRampToValueAtTime(targetGain, now + 0.035);
-        audio.shimmerGain.gain.linearRampToValueAtTime(
-          enabled ? soundActivity.current * 0.005 : 0,
-          now + 0.045,
+        const root = 196 + energy * 72 + (hoveringRef.current ? 8 : 0);
+        const intervals = [1, 1.25, 1.5, 1.875];
+
+        audio.voices.forEach((voice, index) => {
+          voice.osc.frequency.setTargetAtTime(root * intervals[index], now, 0.14 + index * 0.02);
+          voice.gain.gain.setTargetAtTime(
+            enabled ? 0.0065 / (index + 1) + energy * (0.007 / (index + 1)) : 0,
+            now,
+            0.18,
+          );
+        });
+
+        audio.filter.frequency.setTargetAtTime(
+          1100 + energy * 1500 + (hoveringRef.current ? 350 : 0),
+          now,
+          0.22,
         );
+        audio.master.gain.setTargetAtTime(enabled ? 0.72 : 0, now, 0.25);
       }
 
       rafRef.current = requestAnimationFrame(moveCursor);
@@ -73,34 +84,30 @@ export default function CustomCursor() {
       if (!AudioContextClass) return;
 
       const ctx = audioRef.current?.ctx ?? new AudioContextClass();
-      const carrier = ctx.createOscillator();
-      const shimmer = ctx.createOscillator();
+      const master = ctx.createGain();
       const filter = ctx.createBiquadFilter();
-      const gain = ctx.createGain();
-      const shimmerGain = ctx.createGain();
-
-      carrier.type = "sine";
-      carrier.frequency.value = 155;
-      shimmer.type = "sine";
-      shimmer.frequency.value = 310;
+      const ratios = [1, 1.25, 1.5, 1.875];
+      const base = 196;
+      const voices = ratios.map((ratio, index) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = index === 3 ? "sine" : "triangle";
+        osc.frequency.value = base * ratio;
+        gain.gain.value = 0.0065 / (index + 1);
+        osc.connect(gain);
+        gain.connect(filter);
+        osc.start();
+        return { osc, gain };
+      });
 
       filter.type = "lowpass";
-      filter.frequency.value = 1050;
-      filter.Q.value = 0.6;
+      filter.frequency.value = 1150;
+      filter.Q.value = 0.4;
+      filter.connect(master);
+      master.gain.value = 0.72;
+      master.connect(ctx.destination);
 
-      gain.gain.value = 0.001;
-      shimmerGain.gain.value = 0;
-
-      carrier.connect(filter);
-      shimmer.connect(shimmerGain);
-      shimmerGain.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-
-      carrier.start();
-      shimmer.start();
-
-      audioRef.current = { ctx, carrier, shimmer, filter, gain, shimmerGain };
+      audioRef.current = { ctx, master, filter, voices };
       void ctx.resume();
       soundUnlocked.current = true;
       setReady(true);
@@ -113,23 +120,8 @@ export default function CustomCursor() {
       const dx = event.clientX - lastPoint.current.x;
       const dy = event.clientY - lastPoint.current.y;
       const distance = Math.hypot(dx, dy);
-      const speed = Math.min(distance / 28, 1);
-      const audio = audioRef.current;
-
-      // No rate limit: every movement continuously modulates one soft rocket sound bed.
-      if (enabled && audio && audio.ctx.state === "running") {
-        const now = audio.ctx.currentTime;
-        soundActivity.current = Math.min(1, soundActivity.current * 0.35 + speed * 0.9);
-        audio.carrier.frequency.setTargetAtTime(135 + speed * 90, now, 0.05);
-        audio.shimmer.frequency.setTargetAtTime(270 + speed * 180, now, 0.055);
-        audio.filter.frequency.setTargetAtTime(
-          800 + speed * 950 + (hoveringRef.current ? 300 : 0),
-          now,
-          0.065,
-        );
-        audio.gain.gain.setTargetAtTime(0.001 + soundActivity.current * 0.016, now, 0.05);
-        audio.shimmerGain.gain.setTargetAtTime(soundActivity.current * 0.005, now, 0.06);
-      }
+      const speed = Math.min(distance / 24, 1);
+      smoothSpeed.current = Math.min(1, smoothSpeed.current * 0.72 + speed * 0.8);
 
       lastPoint.current.x = event.clientX;
       lastPoint.current.y = event.clientY;
@@ -160,12 +152,13 @@ export default function CustomCursor() {
 
       const audio = audioRef.current;
       if (audio) {
-        try {
-          audio.carrier.stop();
-          audio.shimmer.stop();
-        } catch {
-          // Oscillators may already be stopped during cleanup.
-        }
+        audio.voices.forEach(({ osc }) => {
+          try {
+            osc.stop();
+          } catch {
+            // Already stopped.
+          }
+        });
         void audio.ctx.close();
       }
       audioRef.current = null;
