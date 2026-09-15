@@ -85,7 +85,7 @@ export default function Hero() {
             </span>
           </a>
           <a
-            href="https://drive.google.com/file/d/1G-w2AC7d794tFvq90j7YmbDGAOy9qZYH/view?usp=sharing"
+            href="https://drive.google.com/file/d/1xJ400TNM-s6_waNdHSwJFZs8Xgh45jhN/view?usp=drivesdk"
             target="_blank"
             rel="noopener noreferrer"
             className="focus-ring inline-flex items-center gap-2 rounded-full border border-[var(--border-hair-strong)] bg-[var(--bg-panel)] px-5 py-2.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:border-[var(--accent-cyan)]/40 hover:bg-[#171a24]"
