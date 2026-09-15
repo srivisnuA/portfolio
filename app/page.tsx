@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <div className="bg-noise relative min-h-screen">
+    <div id="top" className="bg-noise relative min-h-screen scroll-mt-28">
       <MeshBackdrop />
       <SignalField />
       <CustomCursor />
