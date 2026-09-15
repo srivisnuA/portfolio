@@ -14,45 +14,55 @@ export default function Nav() {
   const [active, setActive] = useState("#top");
 
   useEffect(() => {
-    const updateFromScroll = () => {
-      const sections = links
-        .map((link) => document.querySelector(link.href))
-        .filter((section): section is HTMLElement => Boolean(section));
+    let frame = 0;
 
-      if (!sections.length) return;
+    const updateActive = () => {
+      frame = 0;
 
-      const marker = window.scrollY + Math.min(160, window.innerHeight * 0.28);
-      let current = sections[0];
+      // Use the actual document positions rather than IntersectionObserver.
+      // This is more reliable on mobile where viewport height and browser chrome
+      // can change while scrolling back toward the top.
+      const offset = window.innerWidth < 640 ? 110 : 130;
+      let current = links[0].href;
 
-      for (const section of sections) {
-        if (section.offsetTop <= marker) current = section;
+      for (const link of links) {
+        const section = document.querySelector(link.href);
+        if (!section) continue;
+
+        const top = section.getBoundingClientRect().top + window.scrollY;
+        if (window.scrollY + offset >= top) {
+          current = link.href;
+        }
       }
 
-      if (window.scrollY <= 32) current = sections[0];
-      setActive(`#${current.id}`);
+      setActive((previous) => (previous === current ? previous : current));
     };
 
-    updateFromScroll();
-    window.addEventListener("scroll", updateFromScroll, { passive: true });
-    window.addEventListener("resize", updateFromScroll);
+    const handleScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateActive);
+    };
+
+    updateActive();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+
     return () => {
-      window.removeEventListener("scroll", updateFromScroll);
-      window.removeEventListener("resize", updateFromScroll);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
   const handleNavClick = (href: string) => {
     setActive(href);
+
     const target = document.querySelector(href);
     if (!target) return;
 
     const navOffset = window.innerWidth < 640 ? 86 : 104;
-    const top = href === "#top"
-      ? 0
-      : Math.max(0, (target as HTMLElement).getBoundingClientRect().top + window.scrollY - navOffset);
+    const top = target.getBoundingClientRect().top + window.scrollY - navOffset;
 
-    window.scrollTo({ top, behavior: "smooth" });
-    window.history.replaceState(null, "", href);
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   };
 
   return (
