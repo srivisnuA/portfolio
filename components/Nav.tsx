@@ -4,15 +4,14 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const links = [
+  { href: "#top", label: "Home" },
   { href: "#patent", label: "Patent" },
   { href: "#work", label: "Work" },
-  { href: "#analytics", label: "Analytics" },
-  { href: "#engineering", label: "Engineering" },
-  { href: "#about", label: "About" },
+  { href: "#about", label: "Arsenal" },
 ];
 
 export default function Nav() {
-  const [active, setActive] = useState("#patent");
+  const [active, setActive] = useState("#top");
 
   useEffect(() => {
     const sections = links
@@ -27,11 +26,9 @@ export default function Nav() {
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
 
-        if (visible?.target.id) {
-          setActive(`#${visible.target.id}`);
-        }
+        if (visible?.target.id) setActive(`#${visible.target.id}`);
       },
-      { rootMargin: "-28% 0px -58% 0px", threshold: [0.05, 0.2, 0.5] },
+      { rootMargin: "-24% 0px -62% 0px", threshold: [0.05, 0.2, 0.5] },
     );
 
     sections.forEach((section) => observer.observe(section));
@@ -52,7 +49,6 @@ export default function Nav() {
       >
         {links.map((l) => {
           const isActive = active === l.href;
-
           return (
             <a
               key={l.href}
