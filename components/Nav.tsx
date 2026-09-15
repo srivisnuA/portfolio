@@ -28,12 +28,24 @@ export default function Nav() {
 
         if (visible?.target.id) setActive(`#${visible.target.id}`);
       },
-      { rootMargin: "-24% 0px -62% 0px", threshold: [0.05, 0.2, 0.5] },
+      { rootMargin: "-18% 0px -62% 0px", threshold: [0.05, 0.15, 0.3, 0.5] },
     );
 
     sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
   }, []);
+
+  const handleNavClick = (href: string) => {
+    setActive(href);
+
+    const target = document.querySelector(href);
+    if (!target) return;
+
+    const navOffset = window.innerWidth < 640 ? 86 : 104;
+    const top = target.getBoundingClientRect().top + window.scrollY - navOffset;
+
+    window.scrollTo({ top, behavior: "smooth" });
+  };
 
   return (
     <motion.nav
@@ -54,6 +66,10 @@ export default function Nav() {
               key={l.href}
               href={l.href}
               aria-current={isActive ? "location" : undefined}
+              onClick={(event) => {
+                event.preventDefault();
+                handleNavClick(l.href);
+              }}
               className="focus-ring relative shrink-0 rounded-full px-4 py-1.5 text-sm text-[var(--text-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
             >
               {l.label}
