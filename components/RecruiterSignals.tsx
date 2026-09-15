@@ -1,13 +1,13 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowUpRight, BrainCircuit, Database, LineChart, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, BrainCircuit, Database, LineChart, Workflow } from "lucide-react";
 
 const signals = [
-  { value: "06", label: "Projects shipped", icon: Database },
-  { value: "01", label: "Patent application", icon: ShieldCheck },
-  { value: "12.32%", label: "MGUE reduction", icon: BrainCircuit },
-  { value: "+3.7%", label: "PDQ improvement", icon: LineChart },
+  { value: "PY · JV · SQL", label: "Core engineering stack", icon: BrainCircuit },
+  { value: "ETL", label: "Data pipelines & automation", icon: Workflow },
+  { value: "CV / DL", label: "Computer vision & deep learning", icon: Database },
+  { value: "AWS", label: "Cloud & deployment", icon: LineChart },
 ];
 
 export default function RecruiterSignals() {
@@ -15,7 +15,7 @@ export default function RecruiterSignals() {
   const x = useTransform(scrollYProgress, [0, 0.5, 1], [0, -70, 0]);
 
   return (
-    <section aria-label="Selected proof points" className="relative z-10 overflow-hidden border-y border-[var(--border-hair)] bg-black/10 py-5 backdrop-blur-[2px]">
+    <section aria-label="Core capabilities" className="relative z-10 overflow-hidden border-y border-[var(--border-hair)] bg-black/10 py-5 backdrop-blur-[2px]">
       <motion.div style={{ x }} className="mx-auto grid max-w-6xl grid-cols-2 gap-px sm:grid-cols-4">
         {signals.map((signal, index) => {
           const Icon = signal.icon;
