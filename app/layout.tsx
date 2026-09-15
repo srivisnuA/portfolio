@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Srivisnu A — Data Engineering & Machine Learning",
+  title: "Srivisnu A Portfolio",
   description:
-    "Portfolio of Srivisnu A — Data Engineer and Machine Learning Engineer based in Chennai. Computer vision, deep learning, and data pipelines.",
+    "Srivisnu A Portfolio — software engineering, data analytics, data engineering, and machine learning.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
