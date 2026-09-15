@@ -14,37 +14,45 @@ export default function Nav() {
   const [active, setActive] = useState("#top");
 
   useEffect(() => {
-    const sections = links
-      .map((link) => document.querySelector(link.href))
-      .filter((section): section is Element => Boolean(section));
+    const updateFromScroll = () => {
+      const sections = links
+        .map((link) => document.querySelector(link.href))
+        .filter((section): section is HTMLElement => Boolean(section));
 
-    if (!sections.length) return;
+      if (!sections.length) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      const marker = window.scrollY + Math.min(160, window.innerHeight * 0.28);
+      let current = sections[0];
 
-        if (visible?.target.id) setActive(`#${visible.target.id}`);
-      },
-      { rootMargin: "-18% 0px -62% 0px", threshold: [0.05, 0.15, 0.3, 0.5] },
-    );
+      for (const section of sections) {
+        if (section.offsetTop <= marker) current = section;
+      }
 
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+      if (window.scrollY <= 32) current = sections[0];
+      setActive(`#${current.id}`);
+    };
+
+    updateFromScroll();
+    window.addEventListener("scroll", updateFromScroll, { passive: true });
+    window.addEventListener("resize", updateFromScroll);
+    return () => {
+      window.removeEventListener("scroll", updateFromScroll);
+      window.removeEventListener("resize", updateFromScroll);
+    };
   }, []);
 
   const handleNavClick = (href: string) => {
     setActive(href);
-
     const target = document.querySelector(href);
     if (!target) return;
 
     const navOffset = window.innerWidth < 640 ? 86 : 104;
-    const top = target.getBoundingClientRect().top + window.scrollY - navOffset;
+    const top = href === "#top"
+      ? 0
+      : Math.max(0, (target as HTMLElement).getBoundingClientRect().top + window.scrollY - navOffset);
 
     window.scrollTo({ top, behavior: "smooth" });
+    window.history.replaceState(null, "", href);
   };
 
   return (
