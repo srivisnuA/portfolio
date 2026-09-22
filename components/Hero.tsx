@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Mail, FileText, ArrowDown, ArrowUpRight } from "lucide-react";
 import { GithubIcon } from "./BrandIcons";
@@ -23,8 +24,24 @@ const item: Variants = {
 };
 
 export default function Hero() {
+  const [showSoundPrompt, setShowSoundPrompt] = useState(true);
+
   return (
     <section className="relative z-10 flex min-h-[100svh] flex-col justify-center px-6 sm:px-10">
+      {showSoundPrompt && (
+        <motion.button
+          type="button"
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ delay: 1.7, duration: 0.45 }}
+          onPointerDown={() => setShowSoundPrompt(false)}
+          className="focus-ring fixed left-1/2 top-[76px] z-40 -translate-x-1/2 rounded-full border border-white/10 bg-[#10131a]/75 px-4 py-2 font-mono text-[10px] tracking-[0.2em] text-[var(--text-muted)] shadow-lg shadow-black/20 backdrop-blur-xl transition-all hover:border-[var(--accent-cyan)]/35 hover:text-[var(--text-primary)] sm:top-[82px] sm:px-5 sm:py-2.5 sm:text-xs"
+        >
+          TAP FOR SOUND
+        </motion.button>
+      )}
+
       <motion.div
         variants={container}
         initial="hidden"
