@@ -15,7 +15,6 @@ type RocketAudio = {
 export default function CustomCursor() {
   const [enabled, setEnabled] = useState(true);
   const [ready, setReady] = useState(false);
-  const [showSoundPrompt, setShowSoundPrompt] = useState(true);
   const [visible, setVisible] = useState(false);
   const [hovering, setHovering] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -176,15 +175,6 @@ export default function CustomCursor() {
 
   return (
     <>
-      {showSoundPrompt && (
-        <button
-          type="button"
-          onPointerDown={() => setShowSoundPrompt(false)}
-          className="focus-ring fixed left-1/2 top-1/2 z-[120] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/15 bg-[#10131a]/90 px-5 py-2.5 font-mono text-xs tracking-[0.18em] text-[var(--text-muted)] shadow-2xl backdrop-blur-xl transition-all hover:border-[var(--accent-cyan)]/40 hover:text-[var(--text-primary)]"
-        >
-          TAP FOR SOUND
-        </button>
-      )}
       <div
         ref={ringRef}
         aria-hidden="true"
