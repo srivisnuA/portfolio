@@ -18,6 +18,18 @@ const projects: Array<{
   metric?: string;
 }> = [
   {
+    title: "FaceFare — Contactless Transit Payments",
+    description:
+      "A facial-recognition payment concept connecting passenger identification, fare calculation, wallet flows, and transactions.",
+    detail:
+      "OpenCV, MTCNN, and FaceNet power the recognition workflow behind a privacy-focused transit payment concept and patent application.",
+    stack: ["Python", "OpenCV", "MTCNN", "FaceNet"],
+    href: "https://github.com/srivisnuA/FaceFare",
+    icon: ScanFace,
+    accent: "var(--accent-amber)",
+    visual: "face",
+  },
+  {
     title: "Refueling Safety & Fraud Detection",
     description:
       "A real-time vision system for safer vehicle refueling, combining safety detection, fuel classification, and anomaly checks.",
@@ -28,6 +40,31 @@ const projects: Array<{
     icon: Fuel,
     accent: "var(--accent-cyan)",
     visual: "fuel",
+  },
+  {
+    title: "ChestXpert — Explainable Chest X-Ray AI",
+    description:
+      "A research-oriented healthcare AI prototype for multi-label chest X-ray abnormality classification with transparent model explanations.",
+    detail:
+      "PyTorch and ResNet-18 power 14-label prediction, while Grad-CAM, DICOM preprocessing, Flask REST APIs, and Streamlit support explainable review workflows.",
+    stack: ["Python", "PyTorch", "ResNet-18", "Grad-CAM", "Flask"],
+    href: "https://github.com/srivisnuA/ChestXpert-Explainable-Chest-X-Ray-AI",
+    icon: BrainCircuit,
+    accent: "var(--accent-cyan)",
+    visual: "game",
+  },
+  {
+    title: "Game-Theory OD — Probabilistic Object Detection",
+    description:
+      "An uncertainty-aware object detection framework that treats competing detection anchors as players in a non-cooperative game.",
+    detail:
+      "Game-Theoretic NMS, unified uncertainty estimation, OOD awareness, and temporal fusion are combined to retain richer detection context.",
+    stack: ["Python", "PyTorch", "OpenCV", "GT-NMS", "OOD"],
+    href: "https://github.com/srivisnuA?tab=repositories",
+    icon: BrainCircuit,
+    accent: "#B39DFF",
+    visual: "game",
+    metric: "PDQ 0.76 · MGUE 0.36",
   },
   {
     title: "Historical Stock Analysis & Prediction",
@@ -54,18 +91,6 @@ const projects: Array<{
     visual: "segments",
   },
   {
-    title: "FaceFare — Contactless Transit Payments",
-    description:
-      "A facial-recognition payment concept connecting passenger identification, fare calculation, wallet flows, and transactions.",
-    detail:
-      "OpenCV, MTCNN, and FaceNet power the recognition workflow behind a privacy-focused transit payment concept and patent application.",
-    stack: ["Python", "OpenCV", "MTCNN", "FaceNet"],
-    href: "https://github.com/srivisnuA/FaceFare",
-    icon: ScanFace,
-    accent: "var(--accent-amber)",
-    visual: "face",
-  },
-  {
     title: "ISRO OHRC Image Enhancement",
     description:
       "A desktop workflow for improving low-light lunar imagery with controlled enhancement and annotation tools.",
@@ -76,31 +101,6 @@ const projects: Array<{
     icon: Telescope,
     accent: "var(--accent-amber)",
     visual: "lunar",
-  },
-  {
-    title: "ChestXpert — Explainable Chest X-Ray AI",
-    description:
-      "A research-oriented healthcare AI prototype for multi-label chest X-ray abnormality classification with transparent model explanations.",
-    detail:
-      "PyTorch and ResNet-18 power 14-label prediction, while Grad-CAM, DICOM preprocessing, Flask REST APIs, and Streamlit support explainable review workflows.",
-    stack: ["Python", "PyTorch", "ResNet-18", "Grad-CAM", "Flask"],
-    href: "https://github.com/srivisnuA/ChestXpert-Explainable-Chest-X-Ray-AI",
-    icon: BrainCircuit,
-    accent: "var(--accent-cyan)",
-    visual: "game",
-  },
-  {
-    title: "Game-Theory OD — Probabilistic Object Detection",
-    description:
-      "An uncertainty-aware object detection framework that treats competing detection anchors as players in a non-cooperative game.",
-    detail:
-      "Game-Theoretic NMS, unified uncertainty estimation, OOD awareness, and temporal fusion are combined to retain richer detection context.",
-    stack: ["Python", "PyTorch", "OpenCV", "GT-NMS", "OOD"],
-    href: "https://github.com/srivisnuA?tab=repositories",
-    icon: BrainCircuit,
-    accent: "#B39DFF",
-    visual: "game",
-    metric: "PDQ 0.76 · MGUE 0.36",
   },
 ];
 
