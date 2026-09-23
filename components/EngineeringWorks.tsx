@@ -78,6 +78,18 @@ const projects: Array<{
     visual: "lunar",
   },
   {
+    title: "ChestXpert — Explainable Chest X-Ray AI",
+    description:
+      "A research-oriented healthcare AI prototype for multi-label chest X-ray abnormality classification with transparent model explanations.",
+    detail:
+      "PyTorch and ResNet-18 power 14-label prediction, while Grad-CAM, DICOM preprocessing, Flask REST APIs, and Streamlit support explainable review workflows.",
+    stack: ["Python", "PyTorch", "ResNet-18", "Grad-CAM", "Flask"],
+    href: "https://github.com/srivisnuA/ChestXpert-Explainable-Chest-X-Ray-AI",
+    icon: BrainCircuit,
+    accent: "var(--accent-cyan)",
+    visual: "game",
+  },
+  {
     title: "Game-Theory OD — Probabilistic Object Detection",
     description:
       "An uncertainty-aware object detection framework that treats competing detection anchors as players in a non-cooperative game.",
@@ -266,7 +278,7 @@ export default function EngineeringWorks() {
                 </p>
               </div>
               <span className="hidden font-mono text-xs text-[var(--text-faint)] sm:block">
-                06 PROJECTS
+                07 PROJECTS
               </span>
             </div>
           </Reveal>
