@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Fuel, TrendingUp, Telescope, Users, ScanFace, BrainCircuit } from "lucide-react";
 import Reveal from "./Reveal";
 
-type VisualKind = "fuel" | "market" | "segments" | "face" | "lunar" | "game";
+type VisualKind = "fuel" | "market" | "segments" | "face" | "lunar" | "game" | "chest";
 
 const projects: Array<{
   title: string;
@@ -51,7 +51,7 @@ const projects: Array<{
     href: "https://github.com/srivisnuA/ChestXpert-Explainable-Chest-X-Ray-AI",
     icon: BrainCircuit,
     accent: "var(--accent-cyan)",
-    visual: "game",
+    visual: "chest",
   },
   {
     title: "Game-Theory OD — Probabilistic Object Detection",
@@ -105,6 +105,40 @@ const projects: Array<{
 ];
 
 function ProjectVisual({ kind, accent }: { kind: VisualKind; accent: string }) {
+  if (kind === "chest") {
+    return (
+      <div className="relative h-20 overflow-hidden rounded-xl border border-[var(--border-hair)] bg-black/10">
+        <div className="absolute left-1/2 top-1/2 h-[58px] w-[92px] -translate-x-1/2 -translate-y-1/2 opacity-80">
+          <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2" style={{ background: `${accent}38` }} />
+          {[0, 1, 2, 3, 4].map((i) => (
+            <motion.div key={i} className="absolute left-1/2 -translate-x-1/2 rounded-[50%] border"
+              style={{ width: `${62 + i * 7}%`, height: "19px", top: `${3 + i * 9}px`, borderColor: `${accent}42`, borderLeftColor: `${accent}78`, borderRightColor: `${accent}78` }}
+              animate={{ scaleX: [0.94, 1.02, 0.94], opacity: [0.38, 0.72, 0.38] }}
+              transition={{ duration: 2.4 + i * 0.08, repeat: Infinity, ease: "easeInOut", delay: i * 0.08 }}
+            />
+          ))}
+          <motion.div className="absolute left-[13%] top-[15px] h-[39px] w-[30px] rounded-[55%_45%_48%_52%] border"
+            style={{ borderColor: `${accent}65`, background: `${accent}08` }}
+            animate={{ scale: [1, 1.035, 1] }} transition={{ duration: 2.1, repeat: Infinity, ease: "easeInOut" }} />
+          <motion.div className="absolute right-[13%] top-[15px] h-[39px] w-[30px] rounded-[45%_55%_52%_48%] border"
+            style={{ borderColor: `${accent}65`, background: `${accent}08` }}
+            animate={{ scale: [1.035, 1, 1.035] }} transition={{ duration: 2.1, repeat: Infinity, ease: "easeInOut" }} />
+          <div className="absolute left-1/2 top-1 h-12 w-3 -translate-x-1/2 rounded-full border" style={{ borderColor: `${accent}55` }} />
+        </div>
+        {[{ left: "30%", top: "40%" }, { left: "64%", top: "53%" }].map((point, i) => (
+          <motion.span key={i} className="absolute h-2 w-2 rounded-full border"
+            style={{ left: point.left, top: point.top, borderColor: accent, background: `${accent}30` }}
+            animate={{ scale: [0.75, 1.35, 0.75], opacity: [0.35, 1, 0.35] }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.45, ease: "easeInOut" }} />
+        ))}
+        <motion.div className="absolute left-5 right-5 h-px opacity-70"
+          style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+          animate={{ top: [8, 69, 8] }} transition={{ duration: 2.8, repeat: Infinity, ease: "linear" }} />
+        <span className="absolute right-3 top-2 font-mono text-[8px] tracking-[0.16em]" style={{ color: `${accent}99` }}>X-RAY SCAN</span>
+      </div>
+    );
+  }
+
   if (kind === "fuel") {
     return (
       <div className="relative h-20 overflow-hidden rounded-xl border border-[var(--border-hair)] bg-black/10">
