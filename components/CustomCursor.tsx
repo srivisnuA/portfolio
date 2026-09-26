@@ -27,50 +27,29 @@ export default function CustomCursor() {
   const lastPoint = useRef({ x: 0, y: 0 });
   const soundUnlocked = useRef(false);
   const soundActivity = useRef(0);
+  const lastScroll = useRef({ y: 0, time: 0 });
+  const lastTouch = useRef({ x: 0, y: 0, time: 0 });
 
   useEffect(() => {
     hoveringRef.current = hovering;
   }, [hovering]);
 
   useEffect(() => {
+    document.documentElement.style.setProperty("--custom-cursor", enabled ? "none" : "auto");
+    return () => document.documentElement.style.setProperty("--custom-cursor", "auto");
+  }, [enabled]);
+
+  useEffect(() => {
     const finePointer = window.matchMedia("(pointer: fine)");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (!finePointer.matches || reducedMotion.matches) return;
+    const supportsTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
-    const moveCursor = () => {
-      const dx = target.current.x - current.current.x;
-      const dy = target.current.y - current.current.y;
-      current.current.x += dx * 0.18;
-      current.current.y += dy * 0.18;
-
-      if (cursorRef.current) {
-        const tilt = Math.max(-22, Math.min(22, dx * 0.45));
-        cursorRef.current.style.transform = `translate3d(${current.current.x - 10}px, ${current.current.y - 10}px, 0) rotate(${tilt}deg)`;
-      }
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate3d(${current.current.x - 18}px, ${current.current.y - 18}px, 0) scale(${hoveringRef.current ? 1.5 : 1})`;
-      }
-
-      const audio = audioRef.current;
-      if (audio && audio.ctx.state === "running") {
-        soundActivity.current *= 0.94;
-        const now = audio.ctx.currentTime;
-        const targetGain = enabled ? 0.001 + soundActivity.current * 0.016 : 0;
-        audio.gain.gain.linearRampToValueAtTime(targetGain, now + 0.035);
-        audio.shimmerGain.gain.linearRampToValueAtTime(
-          enabled ? soundActivity.current * 0.005 : 0,
-          now + 0.045,
-        );
-      }
-
-      rafRef.current = requestAnimationFrame(moveCursor);
-    };
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
 
     const unlockAudio = () => {
-      if (soundUnlocked.current) return;
-      const AudioContextClass = window.AudioContext ||
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioContextClass) return;
+      if (soundUnlocked.current || !AudioContextClass) return;
 
       const ctx = audioRef.current?.ctx ?? new AudioContextClass();
       const carrier = ctx.createOscillator();
@@ -88,7 +67,7 @@ export default function CustomCursor() {
       filter.frequency.value = 1100;
       filter.Q.value = 0.65;
 
-      gain.gain.value = 0.002;
+      gain.gain.value = 0.001;
       shimmerGain.gain.value = 0;
 
       carrier.connect(filter);
@@ -106,51 +85,153 @@ export default function CustomCursor() {
       setReady(true);
     };
 
+    const driveAudio = (speed: number) => {
+      const audio = audioRef.current;
+      const normalized = Math.max(0, Math.min(1, speed));
+
+      soundActivity.current = Math.min(
+        1,
+        soundActivity.current * 0.42 + normalized * 0.92,
+      );
+
+      if (!audio || audio.ctx.state !== "running" || !enabled) return;
+
+      const now = audio.ctx.currentTime;
+      const activity = soundActivity.current;
+      const hoverBoost = hoveringRef.current ? 300 : 0;
+
+      audio.carrier.frequency.setTargetAtTime(135 + normalized * 100, now, 0.045);
+      audio.shimmer.frequency.setTargetAtTime(270 + normalized * 190, now, 0.05);
+      audio.filter.frequency.setTargetAtTime(
+        800 + normalized * 1150 + hoverBoost,
+        now,
+        0.06,
+      );
+      audio.gain.gain.setTargetAtTime(0.0015 + activity * 0.018, now, 0.045);
+      audio.shimmerGain.gain.setTargetAtTime(activity * 0.0065, now, 0.055);
+    };
+
+    const moveCursorFrame = () => {
+      if (finePointer.matches && !reducedMotion.matches) {
+        const dx = target.current.x - current.current.x;
+        const dy = target.current.y - current.current.y;
+        current.current.x += dx * 0.18;
+        current.current.y += dy * 0.18;
+
+        if (cursorRef.current) {
+          const tilt = Math.max(-22, Math.min(22, dx * 0.45));
+          cursorRef.current.style.transform = `translate3d(${current.current.x - 10}px, ${current.current.y - 10}px, 0) rotate(${tilt}deg)`;
+        }
+        if (ringRef.current) {
+          ringRef.current.style.transform = `translate3d(${current.current.x - 18}px, ${current.current.y - 18}px, 0) scale(${hoveringRef.current ? 1.5 : 1})`;
+        }
+      }
+
+      const audio = audioRef.current;
+      if (audio && audio.ctx.state === "running") {
+        soundActivity.current *= 0.94;
+        const now = audio.ctx.currentTime;
+        const activity = enabled ? soundActivity.current : 0;
+        audio.gain.gain.linearRampToValueAtTime(0.001 + activity * 0.018, now + 0.035);
+        audio.shimmerGain.gain.linearRampToValueAtTime(activity * 0.006, now + 0.045);
+      }
+
+      rafRef.current = requestAnimationFrame(moveCursorFrame);
+    };
+
     const onPointerMove = (event: PointerEvent) => {
+      if (!finePointer.matches || reducedMotion.matches) return;
+
       target.current.x = event.clientX;
       target.current.y = event.clientY;
 
       const dx = event.clientX - lastPoint.current.x;
       const dy = event.clientY - lastPoint.current.y;
       const distance = Math.hypot(dx, dy);
-      const speed = Math.min(distance / 28, 1);
-      const audio = audioRef.current;
-
-      if (enabled && audio && audio.ctx.state === "running") {
-        const now = audio.ctx.currentTime;
-        soundActivity.current = Math.min(1, soundActivity.current * 0.35 + speed * 0.9);
-        audio.carrier.frequency.setTargetAtTime(135 + speed * 95, now, 0.045);
-        audio.shimmer.frequency.setTargetAtTime(270 + speed * 190, now, 0.05);
-        audio.filter.frequency.setTargetAtTime(850 + speed * 1050 + (hoveringRef.current ? 350 : 0), now, 0.06);
-        audio.gain.gain.setTargetAtTime(0.002 + soundActivity.current * 0.018, now, 0.045);
-        audio.shimmerGain.gain.setTargetAtTime(soundActivity.current * 0.006, now, 0.055);
-      }
+      driveAudio(Math.min(distance / 28, 1));
 
       lastPoint.current.x = event.clientX;
       lastPoint.current.y = event.clientY;
       setVisible(true);
 
       const interactive = (event.target as HTMLElement | null)?.closest(
-        "a, button, [role='button'], input, textarea, select"
+        "a, button, [role='button'], input, textarea, select",
       );
       setHovering(Boolean(interactive));
     };
 
-    const onPointerDown = () => unlockAudio();
-    const onPointerLeave = () => setVisible(false);
-    const onPointerEnter = () => setVisible(true);
+    const onPointerDown = () => {
+      unlockAudio();
+      if (finePointer.matches && !reducedMotion.matches) {
+        setVisible(true);
+      }
+    };
+
+    const onPointerLeave = () => {
+      if (finePointer.matches) setVisible(false);
+    };
+
+    const onPointerEnter = () => {
+      if (finePointer.matches) setVisible(true);
+    };
+
+    const onScroll = () => {
+      const now = performance.now();
+      const y = window.scrollY;
+      const previous = lastScroll.current;
+      const dt = previous.time ? Math.max(8, now - previous.time) : 16;
+      const dy = y - previous.y;
+      const speed = Math.min(Math.abs(dy) / dt / 2.2, 1);
+      lastScroll.current = { y, time: now };
+
+      if (supportsTouch || !finePointer.matches) {
+        driveAudio(speed);
+      }
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      unlockAudio();
+      const touch = event.touches[0];
+      if (!touch) return;
+      lastTouch.current = { x: touch.clientX, y: touch.clientY, time: performance.now() };
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      if (!touch) return;
+
+      const now = performance.now();
+      const previous = lastTouch.current;
+      const dt = previous.time ? Math.max(8, now - previous.time) : 16;
+      const distance = Math.hypot(
+        touch.clientX - previous.x,
+        touch.clientY - previous.y,
+      );
+      driveAudio(Math.min(distance / dt / 2.4, 1));
+
+      lastTouch.current = { x: touch.clientX, y: touch.clientY, time: now };
+    };
 
     document.addEventListener("pointermove", onPointerMove, { passive: true });
     document.addEventListener("pointerdown", onPointerDown, { passive: true });
+    document.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: true });
     document.documentElement.addEventListener("mouseleave", onPointerLeave);
     document.documentElement.addEventListener("mouseenter", onPointerEnter);
-    rafRef.current = requestAnimationFrame(moveCursor);
+
+    lastScroll.current = { y: window.scrollY, time: performance.now() };
+    rafRef.current = requestAnimationFrame(moveCursorFrame);
 
     return () => {
       document.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("scroll", onScroll);
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
       document.documentElement.removeEventListener("mouseleave", onPointerLeave);
       document.documentElement.removeEventListener("mouseenter", onPointerEnter);
+
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
       const audio = audioRef.current;
@@ -163,14 +244,10 @@ export default function CustomCursor() {
         }
         void audio.ctx.close();
       }
+
       audioRef.current = null;
       soundUnlocked.current = false;
     };
-  }, [enabled]);
-
-  useEffect(() => {
-    document.documentElement.style.setProperty("--custom-cursor", enabled ? "none" : "auto");
-    return () => document.documentElement.style.setProperty("--custom-cursor", "auto");
   }, [enabled]);
 
   return (
